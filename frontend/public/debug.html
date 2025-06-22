@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Debug Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        .success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .info {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+    </style>
+</head>
+<body>
+    <h1>API Debug Test</h1>
+    <p>This page tests the API connection directly from your mobile browser.</p>
+    
+    <div class="form-group">
+        <label for="email">Email:</label>
+        <input type="email" id="email" value="tistusta@gmail.com" placeholder="Enter your email">
+    </div>
+    
+    <div class="form-group">
+        <label for="password">Password:</label>
+        <input type="password" id="password" placeholder="Enter your password">
+    </div>
+    
+    <button onclick="testAPI()">Test Login API (fetch)</button>
+    <button onclick="testAPIWithAxios()">Test Login API (axios - like React)</button>
+    <button onclick="testHealth()">Test Health API</button>
+    
+    <div id="result"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        const API_BASE_URL = 'http://192.168.100.3:5000/api/v1';
+        
+        function showResult(message, type = 'info') {
+            const resultDiv = document.getElementById('result');
+            resultDiv.className = `result ${type}`;
+            resultDiv.textContent = message;
+        }
+        
+        async function testHealth() {
+            showResult('Testing health endpoint...', 'info');
+            
+            try {
+                const response = await fetch('http://192.168.100.3:5000/health');
+                const data = await response.json();
+                
+                showResult(`Health Check Success!\nStatus: ${response.status}\nResponse: ${JSON.stringify(data, null, 2)}`, 'success');
+            } catch (error) {
+                showResult(`Health Check Failed!\nError: ${error.message}\nStack: ${error.stack}`, 'error');
+            }
+        }
+        
+        async function testAPI() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            if (!email || !password) {
+                showResult('Please enter both email and password', 'error');
+                return;
+            }
+            
+            showResult('Testing login endpoint...', 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        password: password,
+                        rememberMe: false,
+                        deviceInfo: {
+                            userAgent: navigator.userAgent,
+                            platform: navigator.platform,
+                            language: navigator.language
+                        }
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult(`Login Success!\nStatus: ${response.status}\nResponse: ${JSON.stringify(data, null, 2)}`, 'success');
+                } else {
+                    showResult(`Login Failed!\nStatus: ${response.status}\nResponse: ${JSON.stringify(data, null, 2)}`, 'error');
+                }
+                
+            } catch (error) {
+                showResult(`Request Failed!\nError: ${error.message}\nStack: ${error.stack}`, 'error');
+            }
+        }
+        
+        async function testAPIWithAxios() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            if (!email || !password) {
+                showResult('Please enter both email and password', 'error');
+                return;
+            }
+            
+            showResult('Testing login endpoint with axios (same as React app)...', 'info');
+            
+            try {
+                const axiosInstance = axios.create({
+                    baseURL: API_BASE_URL,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    withCredentials: false
+                });
+                
+                const response = await axiosInstance.post('/auth/login', {
+                    email: email,
+                    password: password,
+                    rememberMe: false,
+                    deviceInfo: {
+                        userAgent: navigator.userAgent,
+                        platform: navigator.platform,
+                        language: navigator.language
+                    }
+                });
+                
+                showResult(`Axios Login Success!\nStatus: ${response.status}\nResponse: ${JSON.stringify(response.data, null, 2)}`, 'success');
+                
+            } catch (error) {
+                const errorInfo = {
+                    message: error.message,
+                    status: error.response?.status,
+                    statusText: error.response?.statusText,
+                    data: error.response?.data,
+                    isNetworkError: !error.response
+                };
+                showResult(`Axios Login Failed!\nError: ${JSON.stringify(errorInfo, null, 2)}`, 'error');
+            }
+        }
+        
+        // Show device info
+        document.addEventListener('DOMContentLoaded', function() {
+            const deviceInfo = {
+                userAgent: navigator.userAgent,
+                platform: navigator.platform,
+                language: navigator.language,
+                screenSize: `${screen.width}x${screen.height}`,
+                windowSize: `${window.innerWidth}x${window.innerHeight}`
+            };
+            
+            console.log('Device Info:', deviceInfo);
+        });
+    </script>
+</body>
+</html> 
