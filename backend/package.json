@@ -1,9 +1,9 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "Production-ready authentication and authorization system with PostgreSQL",
+  "description": "Authentication API server",
   "license": "ISC",
-  "author": "",
+  "author": "Stefan",
   "type": "module",
   "main": "src/index.js",
   "scripts": {
