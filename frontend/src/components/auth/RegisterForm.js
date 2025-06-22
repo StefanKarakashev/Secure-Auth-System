@@ -217,7 +217,7 @@ const RegisterForm = () => {
   const passwordStrength = getPasswordStrength(formData.password);
 
   return (
-    <div className="card max-w-md mx-auto">
+    <div className="card w-full">
       <div className="card-body">
         {/* Header */}
         <div className="text-center mb-6">
@@ -249,7 +249,7 @@ const RegisterForm = () => {
         )}
 
         {/* Registration Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5">
           {/* Name Fields Row */}
           <div className="grid grid-cols-2 gap-4">
             {/* First Name */}

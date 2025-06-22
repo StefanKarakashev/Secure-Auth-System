@@ -119,7 +119,7 @@ const LoginForm = () => {
   };
 
   return (
-    <div className="card max-w-md mx-auto">
+    <div className="card w-full">
       <div className="card-body">
         {/* Header */}
         <div className="text-center mb-6">
@@ -149,7 +149,7 @@ const LoginForm = () => {
         )}
 
         {/* Login Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5">
           {/* Email Field */}
           <div>
             <label 
